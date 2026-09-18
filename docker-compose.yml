@@ -1,7 +1,7 @@
 services:
   web:
     build: .
-    container_name: bigquery-release-notes-hub
+    container_name: bigquery-release-radar
     ports:
       - "5001:5001"
     environment:

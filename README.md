@@ -1,4 +1,4 @@
-# BigQuery Release Notes Hub & Tweet Composer 🚀
+# BigQuery Release Radar & Tweet Composer 🚀
 
 [![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Flask](https://img.shields.io/badge/Flask-3.0%2B-black.svg)](https://flask.palletsprojects.com/)
@@ -14,7 +14,7 @@ An elegant, dark-themed, glassmorphic web application that parses Google Cloud's
 ---
 
 <p align="center">
-  <img src="static/images/screenshot.jpg" alt="BigQuery Release Notes Hub Dashboard" width="850"/>
+  <img src="static/images/screenshot.jpg" alt="BigQuery Release Radar Dashboard" width="850"/>
 </p>
 
 ---
@@ -83,7 +83,7 @@ Google Cloud BigQuery Atom Feed (XML)
 ## Directory Structure
 
 ```bash
-RJ1899157-event-talks-app-google-kaggle-AIcourse/
+bigquery-release-radar/
 ├── data/                            # Persistent feed cache fallback
 │   └── feed_cache.json
 ├── static/
@@ -113,8 +113,8 @@ RJ1899157-event-talks-app-google-kaggle-AIcourse/
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/RJ1899157/RJ1899157-event-talks-app-google-kaggle-AIcourse.git
-   cd RJ1899157-event-talks-app-google-kaggle-AIcourse
+   git clone https://github.com/RJ1899157/bigquery-release-radar.git
+   cd bigquery-release-radar
    ```
 
 2. **Create and activate a virtual environment:**

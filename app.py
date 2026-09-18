@@ -81,7 +81,7 @@ def load_disk_cache():
 def fetch_and_parse_feed():
     """Fetches Google BigQuery Atom feed and decomposes daily dumps into distinct update items."""
     headers = {
-        'User-Agent': 'Mozilla/5.0 (BigQueryReleaseNotesHub/1.0; +https://github.com/RJ1899157)'
+        'User-Agent': 'Mozilla/5.0 (BigQueryReleaseRadar/1.0; +https://github.com/RJ1899157)'
     }
     
     session = get_http_session()
