@@ -1,64 +1,207 @@
 # BigQuery Release Notes Hub & Tweet Composer 🚀
 
-![Dashboard Screenshot](static/images/screenshot.jpg)
+[![Python](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.0%2B-black.svg)](https://flask.palletsprojects.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[![Google Cloud](https://img.shields.io/badge/Google%20Cloud-BigQuery-4285F4.svg)](https://cloud.google.com/bigquery)
+[![X / Twitter](https://img.shields.io/badge/X%20(Twitter)-Intent%20API-000000.svg)](https://x.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-An elegant, dark-themed, glassmorphic web dashboard built with Python Flask and vanilla HTML/CSS/JS. It parses Google Cloud's BigQuery Release Notes RSS/Atom feed, structures them into individual updates, allows filtering/searching, and includes a built-in Tweet composer to post updates directly to X (Twitter).
+An elegant, dark-themed, glassmorphic web application that parses Google Cloud's official BigQuery Release Notes Atom feed, structures daily release dumps into individual actionable updates, provides instant client-side filtering and search, and includes a smart character-counted tweet composer to broadcast updates to X (Twitter).
 
-## Features
+> **Origin & Workshop Context**: Developed as part of the **Google x Kaggle AI Course / Agents Workshop**, demonstrating real-time data ingestion, resilient caching, and automated developer tooling.
 
--   **Live Sync & Caching:** Fetch the latest updates directly from the official XML feed with a simple refresh button, including a spinning loader and in-memory caching to optimize performance.
--   **Dashboard Analytics:** Clean counters showing total updates, features, announcements, and issues/fixes with smooth numerical count-up animations.
--   **Granular Parsing:** Parses daily release note entries and splits them by category headers (`Feature`, `Announcement`, `Changed`, `Deprecation`, etc.) to show individual updates as cards rather than daily dumps.
--   **Live Keyword Search:** Instant search updates as you type (matches date, content text, or categories).
--   **Type Filters:** Pill tags to filter updates instantly in the client (Feature, Announcement, Changed, Deprecation, Issue).
--   **Dynamic X (Twitter) Composer:**
-    -   Click **Tweet This Update** on any card to open a custom composer modal.
-    -   Automatically truncates long updates and prepends category tags and dates while leaving space for links and hashtags.
-    -   Includes a character counter with safety limits (turning red if exceeding X's 280-char limit).
-    -   Supports direct "Post to X" redirection via Twitter Web Intent.
-    -   Provides a "Copy Text" action with instant clipboard feedback.
--   **Rich Aesthetics:** Modern dark interface leveraging glowing background radial orbs, custom-styled scrollbars, glassmorphism panels, CSS shimmer skeletons, and smooth CSS animations.
+---
+
+<p align="center">
+  <img src="static/images/screenshot.jpg" alt="BigQuery Release Notes Hub Dashboard" width="850"/>
+</p>
+
+---
+
+## Key Features
+
+* **🔄 Live Feed Ingestion & Multi-Tier Caching**:
+  * Directly parses Google Cloud's official BigQuery Atom/XML feed (`https://docs.cloud.google.com/feeds/bigquery-release-notes.xml`).
+  * Features dual-tier caching (in-memory TTL + persistent disk fallback) to guarantee 100% uptime even during network downtime.
+  * Automatic retry strategies using HTTP connection pooling.
+* **📊 Granular Release Decomposition**:
+  * Instead of monolithic daily release dumps, splits multi-feature updates by header categories (`Feature`, `Announcement`, `Changed`, `Deprecation`, `Issue / Fix`).
+  * Enforces safe link rewriting (`target="_blank"` and `rel="noopener noreferrer"`).
+* **⚡ Instant Client-Side Search & Tag Filtering**:
+  * Type-ahead search matching across dates, feature descriptions, and categories.
+  * Dynamic pill filters for quick category exploration.
+* **🐦 Integrated X (Twitter) Composer**:
+  * One-click "Tweet This Update" modal pre-formats concise, formatted tweets with hashtags (`#BigQuery #GCP #DataWarehouse`).
+  * Exact Twitter character calculation (treating all URLs as 23 characters per Twitter `t.co` specifications).
+  * 280-character limit enforcement with visual warnings and safety button locks.
+  * Direct "Post to X" redirection via Web Intent API and instant "Copy to Clipboard" support.
+* **📈 Real-Time Dashboard Analytics**:
+  * Live counters displaying total updates, feature releases, announcements, and deprecations with smooth numerical count-up animations.
+* **📥 CSV Export Utility**:
+  * One-click export of filtered release notes to timestamped CSV files.
+* **🌓 Modern Glassmorphic Aesthetics**:
+  * Dark mode by default with radial glow orbs, glassmorphism cards, and fluid light/dark mode toggling persisted in `localStorage`.
+
+---
+
+## System Architecture
+
+```
+Google Cloud BigQuery Atom Feed (XML)
+                │
+                ▼
+      [ Requests Session ]  (Retries & Connection Pooling)
+                │
+                ▼
+     [ BeautifulSoup Parser ] ──► Extracts entries, splits <h3> headers, sanitizes links
+                │
+        ┌───────┴────────┐
+        ▼                ▼
+ [ In-Memory Cache ]  [ Persistent Disk Cache ] (data/feed_cache.json)
+        │
+        ▼
+   [ Flask API ] ───────► GET /api/releases
+                          GET /health
+                          GET /
+        │
+        ▼
+ [ Glassmorphic UI ] ───► Real-Time Search, Filters, CSV Export, X (Twitter) Composer
+```
 
 ---
 
 ## Technical Stack
 
--   **Backend:** Python 3 (Flask, `requests`, `beautifulsoup4`)
--   **Frontend:** Vanilla HTML5, CSS3, JavaScript (ES6)
--   **Design:** Custom styles using HSL-tailored colors, Google Fonts (`Plus Jakarta Sans` for body, `Space Grotesk` for numbers, and `JetBrains Mono` for code blocks), and inline SVGs.
--   **Feed URL:** [https://docs.cloud.google.com/feeds/bigquery-release-notes.xml](https://docs.cloud.google.com/feeds/bigquery-release-notes.xml)
+* **Backend**: Python 3.9+, Flask, Requests, BeautifulSoup4, Gunicorn
+* **Frontend**: Vanilla HTML5, CSS3 (Custom Glassmorphism, CSS Grid, Variables), Modern ES6+ JavaScript
+* **Typography**: Plus Jakarta Sans (UI), Space Grotesk (Metrics), JetBrains Mono (Code)
+* **Containerization**: Docker, Docker Compose
 
 ---
 
-## File Structure
+## Directory Structure
 
--   [app.py](file:///Users/rishabhjain/agy-cli-projects/bq-releases-notes/app.py): The Flask backend server. Handles XML parsing, caching, and serving API responses.
--   [templates/index.html](file:///Users/rishabhjain/agy-cli-projects/bq-releases-notes/templates/index.html): The HTML base structure of the app and modal.
--   [static/css/style.css](file:///Users/rishabhjain/agy-cli-projects/bq-releases-notes/static/css/style.css): Main stylesheet with themes, layout, shimmer loaders, and keyframes.
--   [static/js/main.js](file:///Users/rishabhjain/agy-cli-projects/bq-releases-notes/static/js/main.js): Frontend app logic (fetching, filtering, searching, modal, clipboard, and tweeting).
--   [requirements.txt](file:///Users/rishabhjain/agy-cli-projects/bq-releases-notes/requirements.txt): List of dependencies (`Flask`, `requests`, `beautifulsoup4`).
+```bash
+RJ1899157-event-talks-app-google-kaggle-AIcourse/
+├── data/                            # Persistent feed cache fallback
+│   └── feed_cache.json
+├── static/
+│   ├── css/
+│   │   └── style.css                # Glassmorphic themes, animations & responsive layout
+│   ├── images/
+│   │   └── screenshot.jpg           # Application preview screenshot
+│   └── js/
+│       └── main.js                  # Frontend state, filters, search, Twitter intent logic
+├── templates/
+│   └── index.html                   # Dashboard shell and composer modal
+├── .dockerignore                    # Docker build ignore rules
+├── .env.example                     # Environment configuration template
+├── .gitignore                       # Python and macOS git ignore rules
+├── app.py                           # Optimized Flask backend server & feed parser
+├── Dockerfile                       # Multi-stage production container
+├── docker-compose.yml               # Single-command container deployment
+├── requirements.txt                 # Clean project dependencies
+└── README.md                        # Documentation
+```
 
 ---
 
-## Installation & Setup
+## Installation & Quickstart
 
-1.  **Clone or Navigate to the directory:**
-    ```bash
-    cd /Users/rishabhjain/agy-cli-projects/bq-releases-notes
-    ```
+### Option 1: Local Python Environment
 
-2.  **Activate Virtual Environment & Install Dependencies:**
-    A virtual environment `.venv` has already been configured and set up. Run the following command to activate it and ensure all dependencies are installed:
-    ```bash
-    source .venv/bin/activate
-    pip install -r requirements.txt
-    ```
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/RJ1899157/RJ1899157-event-talks-app-google-kaggle-AIcourse.git
+   cd RJ1899157-event-talks-app-google-kaggle-AIcourse
+   ```
 
-3.  **Run the Flask Server:**
-    ```bash
-    python app.py
-    ```
-    The server will start locally on `http://127.0.0.1:5001`.
+2. **Create and activate a virtual environment:**
+   ```bash
+   # On macOS / Linux:
+   python3 -m venv .venv
+   source .venv/bin/activate
 
-4.  **View in Browser:**
-    Open [http://127.0.0.1:5001](http://127.0.0.1:5001) in your browser.
+   # On Windows:
+   python -m venv .venv
+   .venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Launch the server:**
+   ```bash
+   python app.py
+   ```
+   *Dashboard will be available at:* **[http://localhost:5001](http://localhost:5001)**
+
+---
+
+### Option 2: Docker & Docker Compose
+
+Run the entire application in an isolated container:
+
+```bash
+docker compose up --build
+```
+*Access the app at:* **[http://localhost:5001](http://localhost:5001)**
+
+To run in the background:
+```bash
+docker compose up -d
+```
+
+---
+
+## API Reference
+
+### `GET /api/releases`
+Fetches structured release note items.
+
+**Query Parameters:**
+| Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `refresh` | `boolean` | `false` | If `true`, bypasses cache and forces live re-sync |
+| `category` | `string` | `""` | Filter by category (e.g. `feature`, `announcement`, `deprecation`) |
+| `q` | `string` | `""` | Search query across update text, date, and type |
+
+**Sample Response:**
+```json
+{
+  "success": true,
+  "total_count": 63,
+  "filtered_count": 50,
+  "last_updated": "2026-09-19 12:06:44 AM",
+  "updates": [
+    {
+      "id": "tag:google.com,2026:bigquery:release-notes:2026-09-17#0",
+      "date": "September 17, 2026",
+      "type": "Feature",
+      "html": "<p>BigQuery now supports enhanced...</p>",
+      "text": "BigQuery now supports enhanced..."
+    }
+  ]
+}
+```
+
+### `GET /health`
+Returns application health and cache status for container probes.
+```json
+{
+  "status": "healthy",
+  "timestamp": "2026-09-18T18:36:43Z",
+  "cache_entries": 63
+}
+```
+
+---
+
+## Author & License
+
+* **Author**: [Rishabh Jain](https://github.com/RJ1899157)
+* **Course Context**: Built during the **Google x Kaggle AI Course**.
+* **License**: MIT License.

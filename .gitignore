@@ -140,3 +140,7 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
+
+# Local data cache and environment
+data/*.json
+.env

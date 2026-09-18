@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    container_name: bigquery-release-notes-hub
+    ports:
+      - "5001:5001"
+    environment:
+      - PORT=5001
+      - CACHE_TTL=300
+    restart: unless-stopped
